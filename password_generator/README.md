@@ -1,81 +1,95 @@
+# Password Generator
 
+Creates compliant, cryptographically secure passwords. You pick the length and
+character types, optionally exclude specific characters (like look-alikes 0/O or
+1/l/I), and it generates one or many passwords with a strength estimate.
 
-Main Script: password_generator.py
+## How to run it
 
-Key Features:
+Important: this is a Python **package**, not a single script. You **cannot** run
+it by opening a `.py` file and clicking the Run / play button. That button runs
+one file by itself, which breaks the package's internal imports. There are
+exactly two ways that work.
 
-1. User-Friendly Input Flow
-  - Asks for password length (4-128 characters) with clear descriptions
-  - Displays all 4 character type options with examples before asking for selection
-  - Allows users to choose any combination of character types
-  - If special characters are selected, presents 3 preset options (Basic, Extended, Full)
-  - Offers a single exclusion step to remove specific characters from any selected type
-    (digits, letters, and special), e.g. look-alikes like 0/O or 1/l/I
-  - Generates one or many passwords per batch, and offers more rounds with the
-    same settings without restarting
-  - Reports an estimated strength (bits of entropy) for the chosen settings
+### Option 1: PowerShell
 
-2. Character Types Available
-  - Numbers (0-9)
-  - Uppercase letters (A-Z)
-  - Lowercase letters (a-z)
-  - Special characters with 3 presets:
-    * Basic: !@#$%^&*
-    * Extended: Basic + ()[]{}+-=.,:;|/<>_~?
-    * Full: Basic + Extended + "'`\
+Open a terminal in the **`utilities`** folder (the one that *contains*
+`password_generator`), then run:
 
-3. Character Customization & Exclusions
-  - Users can select any of the 3 preset special character sets
-  - A single exclusion step then applies across every selected type, not just special
-  - This allows optimization: e.g., select Extended but exclude ~, or strip
-    look-alike digits/letters (0/O, 1/l/I) that some systems or users disallow
-  - Exclusions that would empty an entire selected class are rejected
-  - Maximizes password strength within system constraints
+```powershell
+python -m password_generator
+```
 
-4. Robust Error Handling
-  - Invalid length selection: loops until valid choice (4-128)
-  - Invalid character type selection: validates numeric input
-  - Prevents duplicate selections
-  - Requires at least one character type selected
-  - Validates character exclusions and rejects emptying a whole class
-  - Guards the generator contract: a length smaller than the number of selected
-    types raises an error instead of silently over-generating
-  - All error messages use clear, non-technical language
+Note the `-m` and that there is **no `.py`**. You run the package by name, not a
+file. Don't `cd` into the `password_generator` folder first; run it from the
+parent (`utilities`), or Python won't find it.
 
-5. Code Quality
-  - Each function has a docstring explaining its purpose
-  - Inline comments explain what each code section does
-  - Type hints for function parameters and returns
-  - Modular design with separate functions for each responsibility
+### Option 2: VS Code (press F5)
 
-6. Unit Tests (11 Total)
-  - Password length test: Verifies correct length generation
-  - Character type inclusion test: Ensures selected types appear in password
-  - Character type exclusion test: Confirms unselected types don't appear
-  - Special character exclusions test: Validates excluded chars are not in password
-  - Special character presets test: Verifies preset functionality works correctly
-  - Special-without-special_chars test: Confirms the basic-preset fallback when no set is passed
-  - Cross-class exclusion test: Confirms look-alike exclusions span digits and letters
-  - Exclusion-empties-class guard test: Confirms emptying a whole class raises an error
-  - Length-smaller-than-types guard test: Confirms the generator contract is enforced
-  - Entropy estimate test: Confirms the entropy formula, pool sizing, and strength labels
-  - Randomness test: Validates that multiple passwords are different
-  - Uses the secrets module (CSPRNG) for cryptographically secure generation
-  - All tests passed successfully
+1. Open the **`utilities`** folder in VS Code (File > Open Folder). Open the
+   parent folder, **not** `password_generator` itself.
+2. Press **F5**.
 
-How to Use
+You do not open or run the `launch.json` file yourself. VS Code reads it
+automatically, and that is what F5 uses. (Opening `launch.json` and pressing F5
+is what causes the confusing "JSON with comments" error.)
 
-Run the script with:
-python password_generator.py
+### What happens either way
 
-It will:
-1. Run all unit tests automatically (you'll see [PASS] messages)
-2. Prompt you to press Enter to start
-3. Ask for password length
-4. Display available character types with examples
-5. Ask which types to include
-6. If special characters selected, choose a preset (Basic, Extended, or Full)
-7. Optionally exclude specific characters from any selected type (e.g. look-alikes)
-8. Choose how many passwords to generate (press Enter for 1)
-9. Display the password(s) plus an estimated strength
-10. Offer to generate more with the same settings, or quit
+1. It runs its own tests (you'll see `[PASS]` lines).
+2. You press Enter to start.
+3. It asks for length, character types, an optional special-character preset,
+   and any characters to exclude.
+4. It asks how many passwords you want, then shows them plus a strength rating.
+5. It offers to generate more with the same settings, or quit.
+
+## Features
+
+- Length from 4 to 128 characters
+- Any mix of numbers, uppercase, lowercase, and special characters
+- Three special-character presets (Basic, Extended, Full)
+- Exclude any specific characters across all selected types (e.g. look-alikes),
+  with a guard that won't let you empty an entire character class
+- Guarantees at least one character from each selected type
+- Cryptographically secure (uses Python's `secrets` module)
+- Generates single passwords or batches, with a strength estimate
+
+## Using the generator in your own code
+
+The generation logic lives in `core.py` and has no prompts or printing, so you
+can import it without launching the interactive app. From the `utilities`
+folder (or with it on your path):
+
+```python
+from password_generator import generate_password, estimate_entropy, strength_label
+
+# A 20-character password with all four character types
+pw = generate_password(20, ["digits", "uppercase", "lowercase", "special"])
+
+# Exclude look-alikes, letters only
+pw = generate_password(16, ["uppercase", "lowercase"], excluded_chars="0O1lI")
+
+# Estimate strength for a given configuration
+bits, pool_size = estimate_entropy(20, ["digits", "lowercase"])
+label = strength_label(bits)   # e.g. "Very strong"
+```
+
+Valid character type keys: `"digits"`, `"uppercase"`, `"lowercase"`, `"special"`.
+
+For a flat, copy-paste reference covering this plus launching the app and
+running the tests, see [`example_usage.py`](example_usage.py).
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `core.py` | Pure generation logic and data. No input/output. Import this to reuse. |
+| `cli.py` | Interactive prompts and the `main()` flow. |
+| `tests.py` | Unit tests (`python -m password_generator.tests`). |
+| `__main__.py` | Entry point that runs tests then launches the CLI. |
+| `__init__.py` | Exposes the public functions for import. |
+| `example_usage.py` | Copy-paste reference for using the package from your own code. |
+
+## Requirements
+
+Python 3.9+ (standard library only; nothing to install). See `requirements.txt`.

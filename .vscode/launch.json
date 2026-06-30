@@ -1,0 +1,19 @@
+{
+  // Press F5 (or Run > Start Debugging) with the "utilities" folder open
+  // as your workspace. This runs the package as a module, which is what
+  // makes its relative imports work. The play button on a single file will
+  // NOT work; use F5 with this config instead.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Password Generator",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "password_generator",
+      "cwd": "${workspaceFolder}",
+      // integratedTerminal is required: the app uses input() prompts, and the
+      // Debug Console cannot accept typed input.
+      "console": "integratedTerminal"
+    }
+  ]
+}
