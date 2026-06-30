@@ -1,0 +1,17 @@
+# Password Generator - Project Dependencies
+#
+# This project uses only Python's built-in standard library modules.
+# No external packages need to be installed.
+#
+# Built-in modules used:
+# - random: For generating random passwords
+# - string: For character sets (digits, letters, punctuation)
+#
+# To verify your Python environment is ready:
+#   python --version    (Python 3.6+ required)
+#
+# To run the password generator:
+#   python password_generator.py
+#
+# To run the demo/tests:
+#   python test_password_generator.py
