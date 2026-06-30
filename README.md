@@ -30,6 +30,32 @@ Each tool folder that is a Python package becomes its own importable top-level
 package (e.g. `import password_generator`). Adding a new tool later needs no
 changes to `pyproject.toml`.
 
+## Adding a new tool
+
+This whole folder is **one** installable distribution named `utilities`. Every
+tool folder inside it is bundled into that single distribution, so you do **not**
+create a separate install (or a separate `pyproject.toml`) per tool.
+
+To add a tool:
+
+1. Drop its folder into `utilities/`, with an `__init__.py` so it's a package
+   (e.g. `utilities/my_tool/__init__.py`).
+2. Re-run the same editable install once to register it:
+   ```powershell
+   pip install -e .
+   ```
+3. Import it by its folder name: `import my_tool`.
+
+Notes:
+- There is always exactly **one** `utilities.egg-info` folder, no matter how
+  many tools you add. You never get one per tool.
+- Do **not** create a second `pyproject.toml` that reuses the name `utilities`.
+  Two projects with the same distribution name collide; pip treats the second as
+  overwriting the first.
+- Only make a tool its own separate distribution (its own subfolder
+  `pyproject.toml` with a **unique** name) if you genuinely need per-tool
+  versions or dependencies. For this collection, the single install is simpler.
+
 ## Using a tool from your own script
 
 See [`password_generator/example_usage.py`](password_generator/example_usage.py)
